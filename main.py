@@ -1,12 +1,11 @@
 import json
 import string
-from http.client import HTTPException
-from random import random
+import random
 from typing import Annotated
 from urllib import request
 
 import aiofiles
-from fastapi import FastAPI, Request,Form
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from httptools import HttpRequestParser
@@ -16,7 +15,8 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 async def root(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
+    return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.post("/")
 async def root(request: Request, long_url: Annotated[str, Form()]):
@@ -30,6 +30,7 @@ async def root(request: Request, long_url: Annotated[str, Form()]):
         await f.write(json.dumps({ short_url: long_url,}))
     return{"message": f"Shortened url is {short_url}"}
 
+
 @app.get("/{short_url}")
 async def convert_url(short_url: str):
     async with aiofiles.open("urls.json", "r") as f:
@@ -38,10 +39,6 @@ async def convert_url(short_url: str):
         raise HTTPException(status_code=404, detail="Url is not found")
     else:
         return RedirectResponse(redirect_url)
-
-
-
-
 
 
 @app.get("/hello/{name}")
