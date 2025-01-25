@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Information for URL</title>
+</head>
+<body>
+
+  {% csrf_token %}
+  {% for key, value in url_data.items() if key not in(" long_url", "_id")%}
+  {{key}}: {{value}}<br>
+<!--    <label for="{{key}}">{{key}}</label>-->
+<!--    <input type = "text" id="{{key}}" name = "{{key}}" value = "{{value}}"><br>-->
+  {% endfor %}
+
+<form action ="/{{url_data.short_url}}/stats" method = "POST">
+    <label for = "long_url">Long URL</label>
+    <input type = "text" id = "long_url" name = "long_url" value = {{url_data.long_url}}></input>
+    <input type = "submit" value = "Save changes"></input>
+</form>
+
+</body>
+</html>
