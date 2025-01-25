@@ -13,7 +13,7 @@
 <!--    <input type = "text" id="{{key}}" name = "{{key}}" value = "{{value}}"><br>-->
   {% endfor %}
 
-<form action ="/{{url_data.short_url}}/stats" method = "POST">
+<form action ="/{{url_data.short_url}}/{{url_data.user_id }}/stats" method = "POST">
     <label for = "long_url">Long URL</label>
     <input type = "text" id = "long_url" name = "long_url" value = {{url_data.long_url}}></input>
     <input type = "submit" value = "Save changes"></input>

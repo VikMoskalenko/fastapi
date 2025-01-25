@@ -1,4 +1,5 @@
 import json
+import os
 import string
 import random
 from gc import collect
@@ -12,8 +13,11 @@ from fastapi.templating import Jinja2Templates
 from httptools import HttpRequestParser
 
 app = FastAPI()
+MONGO_HOST = os.environ.get("MONGO_HOST", "localhost")
+MONGO_USER = os.environ.get("MONGO_USER", "root")
+MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD", "example")
 templates = Jinja2Templates(directory="templates")
-db_client = motor.motor_asyncio.AsyncIOMotorClient("localhost", 27017, username="root", password="example")
+db_client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_HOST,27017,username=MONGO_USER, password=MONGO_PASSWORD)
 app_db = db_client["url_shortener"]
 collection = app_db["urls"]
 @app.get("/")
@@ -43,18 +47,18 @@ async def convert_url(short_url: str):
     else:
         return RedirectResponse(redirect_url)
 
-@app.get("/{short_url}/stats")
-async def stats(request: Request, short_url: str):
-    collection_data = await collection.find_one({"short_url": short_url})
+@app.get("/{short_url}/{user_id}stats")
+async def stats(request: Request, short_url: str, user_id: int):
+    collection_data = await collection.find_one({"short_url": short_url, "user_id": user_id})
     if collection_data is None:
         raise HTTPException(status_code=404, detail="Url is not found")
     return templates.TemplateResponse(request= request, name="stats.html",context= {"url_data": collection_data})
 
-@app.post("/{short_url}/stats")
-async def edit_stats(request: Request, short_url: str, long_url: Annotated[str, Form()]):
+@app.post("/{short_url}/{user_id}/stats")
+async def edit_stats(request: Request, short_url: str, user_id: int, long_url: Annotated[str, Form()]):
 
     await collection.update_one({"short_url": short_url}, {"$set":{ "long_url": long_url}} )
-    collection_data = await collection.find_one({"short_url": short_url})
+    collection_data = await collection.find_one({"short_url": short_url, "user_id": user_id})
     return templates.TemplateResponse(request= request, name="stats.html",context= {"url_data": collection_data})
 
 

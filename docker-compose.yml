@@ -1,11 +1,24 @@
 version: '3.1'
 
 services:
-#  web:
-#    build: .
-#    ports:
-#      - 8081: 8081
+  web:
+    build: .
+    ports:
+      - 8081:8081
+    environment:
+      MONGO_HOST: mongo
+      MONGO_USER: root
+      MONGO_PASSWORD: example
+    command: "uvicorn main:app --host 0.0.0.0 --port 8001"
 
+  tg_bot:
+      build: .
+      environment:
+        API_TOKEN: "8177058610:AAF0PPYOtw39CHOLoADzx4MW8zNSRYwkLwQ"
+        MONGO_HOST: mongo
+        MONGO_USER: root
+        MONGO_PASSWORD: example
+      command: "python3 tg_bot.py"
 
   mongo:
     image: mongo
